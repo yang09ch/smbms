@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yang.mapper.SmbmsUserMapper">
+   <!-- 冗余的sql语句-->
+    <sql id="limitSql">
+        <where>
+            <if test="userName!=null and userName!=''">
+                and u.userName like concat('%',#{userName},'%')
+            </if>
+            <if test="id!=-1">
+                and u.userRole=#{id}
+            </if>
+        </where>
+    </sql>
+
+    <!--做登录-->
+    <select id="getUser" resultType="SmbmsUser">
+        select * from smbms_user where userCode=#{usercode} and userPassword=#{pwd}
+    </select>
+    <!--分页-->
+    <select id="getCount" resultType="int">
+        SELECT COUNT(*) FROM smbms_user u INNER JOIN smbms_role r ON u.userRole=r.id
+        <include refid="limitSql"></include>
+    </select>
+    <select id="getLimit" resultType="SmbmsUser">
+        SELECT u.*,r.roleName,TIMESTAMPDIFF(YEAR,u.birthday,CURDATE())AS age
+        FROM smbms_user u
+        INNER JOIN smbms_role r ON u.userRole=r.id
+        <include refid="limitSql"></include>
+        limit #{from},#{pageSize}
+    </select>
+
+    <!--删除-->
+    <delete id="delete" parameterType="int">
+        delete  from smbms_user where id=#{id}
+    </delete>
+    <!--新增-->
+    <insert id="add" parameterType="SmbmsUser">
+INSERT INTO smbms_user
+	VALUES
+	(NULL,
+	#{usercode},
+	#{username},
+	${userpassword},
+	#{gender},
+	#{birthday},
+	#{phone},
+	#{address},
+	#{userrole},
+	#{createdby},
+	now(),
+	#{modifyby},
+	#{modifydate}
+	)
+    </insert>
+    <!--去修改-->
+    <select id="toUpdate" resultType="SmbmsUser">
+        SELECT u.*,r.roleName,TIMESTAMPDIFF(YEAR,u.birthday,CURDATE())AS age
+        FROM smbms_user u
+        INNER JOIN smbms_role r ON u.userRole=r.id where u.id=#{id}
+    </select>
+<update id="update" parameterType="SmbmsUser">
+    UPDATE smbms_user
+    <set>
+        <if test="usercode!=null and usercode!=''">
+            userCode =#{usercode} ,
+        </if>
+        <if test="username!=null and username!=''">
+            userName =#{username},
+        </if>
+        <if test="userpassword!=null and userpassword!=''">
+            userPassword =#{userpassword},
+        </if>
+        <if test="gender!=null and gender!=''">
+            gender =#{gender},
+        </if>
+        <if test="birthday!=null and birthday!=''">
+            birthday =#{birthday},
+        </if>
+        <if test="phone!=null and phone!=''">
+            phone =#{phone},
+        </if>
+        <if test="address!=null and address!=''">
+            address =#{address},
+        </if>
+        <if test="userrole!=null and userrole!=''">
+            userRole =#{userrole},
+        </if>
+            modifyBy =#{modifyby},
+        modifyDate=now()
+    </set>
+    <where>
+        id=#{id}
+    </where>
+</update>
+    <!--查重-->
+    <select id="checkCode" resultType="int">
+        select count(*) from  smbms_user where userCode=#{code}
+    </select>
+
+</mapper>

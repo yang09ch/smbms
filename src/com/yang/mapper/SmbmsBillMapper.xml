@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yang.mapper.SmbmsBillMapper">
+    <!--新增-->
+    <insert id="insert" parameterType="SmbmsBill">
+    INSERT INTO smbms_bill
+    VALUES
+    (null,
+    #{billCode},
+    #{productName},
+    #{productDesc},
+    #{productUnit},
+    #{productCount},
+    #{totalPrice},
+    #{isPayment},
+    #{createdBy},
+    now(),
+    #{modifyBy},
+    #{modifyDate},
+    #{providerId}
+    )
+</insert>
+    <delete id="delete" parameterType="int">
+        delete from smbms_bill where id=#{id}
+    </delete>
+    <select id="getByid" resultType="SmbmsBill">
+      SELECT b.*,p.proname as providerName FROM smbms_bill b INNER JOIN smbms_provider p ON b.providerId=p.id where b.id=#{id}
+    </select>
+    <!--修改-->
+    <update id="getUpdate" parameterType="SmbmsBill">
+        update smbms_bill
+        <set>
+            <if test="billCode!=null and billCode!=''">
+                billCode = #{billCode},
+            </if>
+            <if test="productName!=null and productName!=''">
+                productName = #{productName},
+            </if>
+            <if test="productDesc!=null and productDesc!=''">
+                productDesc = #{productDesc},
+            </if>
+            <if test="productUnit!=null and productUnit!=''">
+                productUnit = #{productUnit},
+            </if>
+            <if test="productCount!=null and productCount!=''">
+                productCount = #{productCount},
+            </if>
+            <if test="totalPrice!=null and totalPrice!=''">
+                totalPrice = #{totalPrice},
+            </if>
+            <if test="isPayment!=null and isPayment!=''">
+                isPayment = #{isPayment} ,
+            </if>
+                modifyBy = #{modifyBy},
+                modifyDate =now(),
+            <if test="providerId!=null and providerId!=''">
+                providerId = #{providerId}
+            </if>
+        </set>
+        where  id=#{id}
+    </update>
+
+    <sql id="limitSql">
+        <where>
+            <if test="productName!=null and productName!=''">
+                and b.productName=#{productName}
+            </if>
+            <if test="providerId!=-1">
+                and b.providerId=#{providerId}
+            </if>
+            <if test="isPayment!=-1">
+                and b.isPayment=#{isPayment}
+            </if>
+        </where>
+    </sql>
+    <select id="getCount" resultType="int">
+        SELECT COUNT(*) FROM smbms_bill b INNER JOIN smbms_provider p ON b.providerId=p.id
+        <include refid="limitSql"></include>
+    </select>
+    <select id="getBillLimit" resultType="SmbmsBill">
+        SELECT b.*,p.proname AS providerName FROM smbms_bill b
+        INNER JOIN smbms_provider p ON b.providerId=p.id
+        <include refid="limitSql"></include>
+        limit #{form},#{pageSize}
+    </select>
+</mapper>
