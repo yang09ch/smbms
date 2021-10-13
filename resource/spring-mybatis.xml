@@ -15,7 +15,7 @@
         <property name="username" value="root"></property>
         <property name="password" value="ok"></property>
     </bean>
-
+<!--张宇-->
     <!--创建工厂-->
     <bean class="org.mybatis.spring.SqlSessionFactoryBean" id="factory">
         <property name="dataSource" ref="dataSource"></property>
